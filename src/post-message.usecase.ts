@@ -13,6 +13,9 @@ export type PostMessageCommand = {
   author: string;
 };
 
+export class MessageTooLongError extends Error {}
+export class EmptyMessageError extends Error {}
+
 export interface MessageRepository {
   save(message: Message): void;
 }
@@ -24,6 +27,10 @@ export class PostMessageUseCase {
   ) {}
 
   handle(postMessageCommand: PostMessageCommand) {
+    if (postMessageCommand.text.length > 280) {
+      throw new MessageTooLongError();
+    }
+
     this.messageRepository.save({
       id: postMessageCommand.id,
       text: postMessageCommand.text,
