@@ -27,6 +27,9 @@ export class PostMessageUseCase {
   ) {}
 
   handle(postMessageCommand: PostMessageCommand) {
+    if (postMessageCommand.text.trim().length === 0) {
+      throw new EmptyMessageError();
+    }
     if (postMessageCommand.text.length > 280) {
       throw new MessageTooLongError();
     }
