@@ -2,7 +2,6 @@ import { InMemoryMessageRepository } from "../message.inmemory.repository";
 import {
   EmptyMessageError,
   Message,
-  MessageRepository,
   MessageTooLongError,
   PostMessageCommand,
   PostMessageUseCase,
@@ -19,7 +18,7 @@ describe("Feature: Posting a message", () => {
     test("Alice can post a new message on her timeline", async () => {
       fixture.givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
 
-      fixture.whenUserPostsMessage({
+      await fixture.whenUserPostsMessage({
         id: "message-id",
         text: "Hello, world!",
         author: "Alice",
@@ -37,7 +36,7 @@ describe("Feature: Posting a message", () => {
       const textWith280Characters = "a".repeat(281);
       fixture.givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
 
-      fixture.whenUserPostsMessage({
+      await fixture.whenUserPostsMessage({
         id: "message-id",
         text: textWith280Characters,
         author: "Alice",
@@ -51,20 +50,19 @@ describe("Feature: Posting a message", () => {
     test("Alice cannot post an empty message", async () => {
       fixture.givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
 
-      fixture.whenUserPostsMessage({
+      await fixture.whenUserPostsMessage({
         id: "message-id",
         text: "",
         author: "Alice",
       });
 
-      // Here we receive MessageTooLongError because of the previous test. Not good !
       fixture.thenErrorShouldBe(EmptyMessageError);
     });
 
     test("Alice cannot post a message with only whitespaces", async () => {
       fixture.givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
 
-      fixture.whenUserPostsMessage({
+      await fixture.whenUserPostsMessage({
         id: "message-id",
         text: "        ",
         author: "Alice",
@@ -100,9 +98,9 @@ function createFixture() {
     givenNowIs(now: Date) {
       dateProvider.now = now;
     },
-    whenUserPostsMessage(postMessage: PostMessageCommand) {
+    async whenUserPostsMessage(postMessage: PostMessageCommand) {
       try {
-        postMessageUseCase.handle(postMessage);
+        await postMessageUseCase.handle(postMessage);
       } catch (err) {
         thrownError = err;
       }
