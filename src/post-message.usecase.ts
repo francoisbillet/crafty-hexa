@@ -1,11 +1,5 @@
+import { MessageRepository } from "./message.repository";
 import { DateProvider } from "./tests/posting-message.spec";
-
-export type Message = {
-  id: string;
-  text: string;
-  author: string;
-  publishedAt: Date;
-};
 
 export type PostMessageCommand = {
   id: string;
@@ -15,10 +9,6 @@ export type PostMessageCommand = {
 
 export class MessageTooLongError extends Error {}
 export class EmptyMessageError extends Error {}
-
-export interface MessageRepository {
-  save(message: Message): Promise<void>;
-}
 
 export class PostMessageUseCase {
   constructor(

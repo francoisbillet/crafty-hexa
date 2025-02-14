@@ -1,7 +1,7 @@
+import { Message } from "../message";
 import { InMemoryMessageRepository } from "../message.inmemory.repository";
 import {
   EmptyMessageError,
-  Message,
   MessageTooLongError,
   PostMessageCommand,
   PostMessageUseCase,
@@ -106,7 +106,9 @@ function createFixture() {
       }
     },
     thenPostedMessageShouldBe(expectedMessage: Message) {
-      expect(expectedMessage).toEqual(messageRepository.message);
+      expect(expectedMessage).toEqual(
+        messageRepository.getMessageById(expectedMessage.id)
+      );
     },
     thenErrorShouldBe(expectedErrorClass: new () => Error) {
       expect(thrownError).toBeInstanceOf(expectedErrorClass);
