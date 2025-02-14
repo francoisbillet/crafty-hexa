@@ -1,7 +1,11 @@
 import { MessageRepository } from "./message.repository";
+import { DateProvider } from "./tests/posting-message.spec";
 
 export class ViewTimeLineUseCase {
-  constructor(private readonly messageRepository: MessageRepository) {}
+  constructor(
+    private readonly messageRepository: MessageRepository,
+    private readonly dateProvider: DateProvider
+  ) {}
   async handle({
     user,
   }: {
@@ -13,17 +17,21 @@ export class ViewTimeLineUseCase {
       (a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()
     );
 
-    return [
-      {
-        author: userMessages[0].author,
-        text: userMessages[0].text,
-        publicationTime: "1 minute ago",
-      },
-      {
-        author: userMessages[1].author,
-        text: userMessages[1].text,
-        publicationTime: "2 minutes ago",
-      },
-    ];
+    return userMessages.map((message) => ({
+      author: message.author,
+      text: message.text,
+      publicationTime: this.publicationTime(message.publishedAt),
+    }));
+  }
+
+  private publicationTime(publishedAt: Date) {
+    const now = this.dateProvider.getNow();
+
+    const timeElapsed = now.getTime() - publishedAt.getTime();
+    const minutes = timeElapsed / 1000 / 60;
+
+    if (minutes < 1) return "less than a minute ago";
+    if (minutes < 2) return "1 minute ago";
+    return `${minutes} minutes ago`;
   }
 }

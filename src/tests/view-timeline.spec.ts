@@ -1,5 +1,6 @@
 import { Message } from "../message";
 import { InMemoryMessageRepository } from "../message.inmemory.repository";
+import { StubDateProvider } from "../stub-date-provider";
 import { ViewTimeLineUseCase } from "../view-timeline.usecase";
 
 describe("Feature: Viewing a personal timeline", () => {
@@ -16,19 +17,25 @@ describe("Feature: Viewing a personal timeline", () => {
           author: "Alice",
           text: "1st message",
           id: "1",
-          publishedAt: new Date("2023-02-07T16:29:00.000Z"),
+          publishedAt: new Date("2023-02-07T16:28:00.000Z"),
         },
         {
           author: "Bob",
           text: "1st message Bob",
           id: "2",
-          publishedAt: new Date("2023-02-07T16:31:00.000Z"),
+          publishedAt: new Date("2023-02-07T16:30:00.000Z"),
         },
         {
           author: "Alice",
           text: "2nd message",
           id: "3",
-          publishedAt: new Date("2023-02-07T16:31:00.000Z"),
+          publishedAt: new Date("2023-02-07T16:29:00.000Z"),
+        },
+        {
+          author: "Alice",
+          text: "3rd message",
+          id: "4",
+          publishedAt: new Date("2023-02-07T16:30:30.000Z"),
         },
       ]);
 
@@ -39,13 +46,18 @@ describe("Feature: Viewing a personal timeline", () => {
       fixture.thenUserShouldSee([
         {
           author: "Alice",
+          text: "3rd message",
+          publicationTime: "less than a minute ago",
+        },
+        {
+          author: "Alice",
           text: "2nd message",
-          publicationTime: "1 minute ago",
+          publicationTime: "2 minutes ago",
         },
         {
           author: "Alice",
           text: "1st message",
-          publicationTime: "2 minutes ago",
+          publicationTime: "3 minutes ago",
         },
       ]);
     });
@@ -60,13 +72,19 @@ const createFixture = () => {
   }[] = [];
 
   const messageRepository = new InMemoryMessageRepository();
-  const viewTimeLineUseCase = new ViewTimeLineUseCase(messageRepository);
+  const dateProvider = new StubDateProvider();
+  const viewTimeLineUseCase = new ViewTimeLineUseCase(
+    messageRepository,
+    dateProvider
+  );
 
   return {
     givenTheFollowingMessagesExist(messages: Message[]) {
       messageRepository.givenExistingMessages(messages);
     },
-    givenNowIs(date: Date) {},
+    givenNowIs(date: Date) {
+      dateProvider.now = date;
+    },
     async whenUserSeesTimelineOf(user: string) {
       timeline = await viewTimeLineUseCase.handle({ user });
     },

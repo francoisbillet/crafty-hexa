@@ -6,6 +6,7 @@ import {
   PostMessageCommand,
   PostMessageUseCase,
 } from "../post-message.usecase";
+import { StubDateProvider } from "../stub-date-provider";
 
 describe("Feature: Posting a message", () => {
   let fixture: Fixture;
@@ -75,14 +76,6 @@ describe("Feature: Posting a message", () => {
 
 export interface DateProvider {
   getNow(): Date;
-}
-
-export class StubDateProvider implements DateProvider {
-  now: Date;
-
-  getNow(): Date {
-    return this.now;
-  }
 }
 
 function createFixture() {
